@@ -2,12 +2,10 @@ package com.agh.dudek;
 
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 
 import java.util.ArrayList;
@@ -26,6 +24,8 @@ public class Map {
     private int height;
     private int[][][] map;
     private Model model;
+
+    private ConnectionList connectionList;
 
     public Map(int width, int depth, int height){
         this.width = width;
@@ -55,11 +55,19 @@ public class Map {
     }
 
     public void createGraph(){
-        //TODO
+        connectionList = new ConnectionList(width, depth, height);
+        connectionList.initialize(map);
     }
 
-    public void findPath(){
-        //TODO
+    public List<Position> findPath(Position startPosition, Position endPosition){
+        Pathfinder pathfinder = new AStarPathfinder();
+        List<Position> path = pathfinder.findPath(startPosition, endPosition, connectionList);
+
+        for (Position p: path){
+            System.out.println("(" + p.getX() + ", " + p.getY() + ", " + p.getZ() + ")");
+        }
+
+        return path;
     }
 
     public List<Building> getBuildings(){

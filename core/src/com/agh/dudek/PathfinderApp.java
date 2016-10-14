@@ -16,6 +16,8 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
+import java.util.List;
+
 
 public class PathfinderApp extends ApplicationAdapter {
 
@@ -27,20 +29,13 @@ public class PathfinderApp extends ApplicationAdapter {
     private InputMultiplexer multiplexer;
     private CameraInputController cameraInputController;
     private boolean isInEditMode;
+	private Map map;
 
 	@Override
 	public void create () {
 		setup();
 
-        Map map = new Map(40, 40, 40);
-		//map.addBuilding(new Building(0, 0, 3, 3, 1));
-        map.addBuilding(new Building(0, 4, 1, 1, 10));
-		map.addBuilding(new Building(0, 0, 3, 4, 4));
-		map.addBuilding(new Building(10, 10, 15, 14, 5));
-
         renderer = new MapRenderer(map, camera, environment);
-
-
 	}
 
 	@Override
@@ -60,6 +55,7 @@ public class PathfinderApp extends ApplicationAdapter {
 	private void setup(){
 		setup3D();
 		setupMenu();
+		setupMap();
 
         multiplexer = new InputMultiplexer();
 		multiplexer.addProcessor(stage);
@@ -93,8 +89,8 @@ public class PathfinderApp extends ApplicationAdapter {
 
         final MarkInputController markInputController = new MarkInputController();
 
-		final TextButton button = new TextButton("Add new building", style);
-		button.addListener(new ClickListener(){
+		final TextButton addNewBuildingButton = new TextButton("Add new building", style);
+		addNewBuildingButton.addListener(new ClickListener(){
 			@Override
 			public void clicked(InputEvent event, float x, float y){
                 multiplexer.removeProcessor(cameraInputController);
@@ -106,16 +102,39 @@ public class PathfinderApp extends ApplicationAdapter {
                     camera.up.set(0, 1, 0);
                     camera.lookAt(0, 0, 0);
                     camera.update();
-                    button.setText("Done");
+                    addNewBuildingButton.setText("Done");
                 } else {
-                    button.setText("Add new building");
+                    addNewBuildingButton.setText("Add new building");
                     multiplexer.removeProcessor(markInputController);
                     multiplexer.addProcessor(cameraInputController);
                 }
 			}
 		});
+		addNewBuildingButton.setX(0);
+		addNewBuildingButton.setY(0);
 
-		stage.addActor(button);
+		final TextButton findPathButton = new TextButton("Find path", style);
+		findPathButton.addListener(new ClickListener(){
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				List<Position> path = map.findPath(new Position(0, 0, 0), new Position(9, 9, 0));
+				renderer.drawPath(path);
+			}
+		});
+		findPathButton.setY(style.font.getLineHeight());
+
+		stage.addActor(addNewBuildingButton);
+		stage.addActor(findPathButton);
+	}
+
+	private void setupMap(){
+		map = new Map(10, 10, 10);
+		//map.addBuilding(new Building(0, 0, 3, 3, 1));
+		map.addBuilding(new Building(3, 2, 2, 2, 4)); //!!!!!!
+		map.addBuilding(new Building(5, 7, 2, 2, 3));
+		//map.addBuilding(new Building(10, 15, 8, 4, 15));
+		//map.addBuilding(new Building(20, 20, 3, 3, 2));
+		map.createGraph();
 	}
 
 

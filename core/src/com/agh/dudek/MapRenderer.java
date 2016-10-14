@@ -27,11 +27,13 @@ public class MapRenderer {
 
     private Map map;
     private List<ModelInstance> buildings;
+    private List<ModelInstance> path;
     private ModelInstance mesh;
     private ModelBatch modelBatch;
     private Camera camera;
     private Environment environment;
     private Model origin;
+    ModelBuilder modelBuilder;
 
 
     public MapRenderer(Map map, Camera camera, Environment environment){
@@ -41,7 +43,7 @@ public class MapRenderer {
 
         this.buildings = new ArrayList<>();
         modelBatch = new ModelBatch();
-        ModelBuilder modelBuilder = new ModelBuilder();
+        modelBuilder = new ModelBuilder();
 
         origin = modelBuilder.createXYZCoordinates(10, new Material(ColorAttribute.createDiffuse(new Color(Color.RED))),
                 VertexAttributes.Usage.Position | VertexAttributes.Usage.ColorPacked);
@@ -54,11 +56,26 @@ public class MapRenderer {
         modelBatch.render(buildings, environment);
         modelBatch.render(mesh, environment);
         modelBatch.render(new ModelInstance(origin, computePosition(0, 0, 0)), environment);
+        if (path != null) {
+            modelBatch.render(path, environment);
+        }
         modelBatch.end();
 
     }
 
+    public void drawPath(List<Position> path){
+        Model pathPart = modelBuilder.createBox(Map.NODE_SIZE, Map.NODE_SIZE, Map.NODE_SIZE,
+                new Material(ColorAttribute.createDiffuse(new Color(Color.RED))),
+                VertexAttributes.Usage.Position | VertexAttributes.Usage.ColorPacked);
+        this.path = new ArrayList<>();
+        for (Position pos: path){
+            this.path.add(new ModelInstance(pathPart, computePosition(pos.getX(), pos.getY(), pos.getZ())));
+        }
+    }
+
     private void generateMap(){
+
+
         mesh = new ModelInstance(map.getModel()); //place mesh in the center of view
 
 
