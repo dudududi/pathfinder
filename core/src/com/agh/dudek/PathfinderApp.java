@@ -117,7 +117,7 @@ public class PathfinderApp extends ApplicationAdapter {
 		findPathButton.addListener(new ClickListener(){
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				List<Position> path = map.findPath(new Position(0, 0, 0), new Position(9, 9, 0));
+				List<Position> path = map.findPath(new Position(0, 0, 9), new Position(9, 9, 0));
 				renderer.drawPath(path);
 			}
 		});

@@ -7,12 +7,10 @@ import java.util.List;
  * Created by dudek on 10/13/16.
  */
 public class AStarPathfinder implements Pathfinder {
-    public AStarPathfinder(){
-    }
 
     public List<Position> findPath (Position startPosition, Position endPosition, ConnectionList map) {
-        Node start = map.getNode(startPosition.getX(), startPosition.getY(), startPosition.getZ());
-        Node end = map.getNode(endPosition.getX(), endPosition.getY(), endPosition.getZ());
+        Node start = map.getNode(startPosition);
+        Node end = map.getNode(endPosition);
 
         List<Node> closed = new ArrayList<>();
         List<Node> opened = new ArrayList<>();
@@ -37,7 +35,7 @@ public class AStarPathfinder implements Pathfinder {
             current.setClosed(true);
 
             //Getting list of adjacent nodes
-            List<Node> adjacentNodes = map.getAdjacentNodes(current.getX(), current.getY(), current.getZ());
+            List<Node> adjacentNodes = current.getAdjacentNodes();
             for (Node child : adjacentNodes) {
                 if (child.isClosed() || !child.isWalkable()) { //TODO !!!!!
                     continue;

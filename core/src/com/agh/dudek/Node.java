@@ -1,5 +1,8 @@
 package com.agh.dudek;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by dudek on 10/13/16.
  */
@@ -17,10 +20,13 @@ public class Node {
     private Node parent;
     private Position position;
 
+    private List<Node> adjacentNodes;
+
     public Node(int a, int b, int c, int w){
         this.walkable = w;
 
         position = new Position(a, b, c);
+        adjacentNodes = new ArrayList<>();
     }
 
     public int getX(){
@@ -56,9 +62,9 @@ public class Node {
     }
 
     public int getG(Node node){
-        if (h == node.h){
+        if (position.getZ()== node.getZ()){
             return node.g + ((position.getX() == node.getX() || position.getY() == node.getY()) ? 10 : 14);
-        } else if (h > node.h) {
+        } else if (position.getZ() > node.getZ()) {
             if (position.getX() == node.getX() && position.getY() == node.getY()){
                 return node.g + 30;
             }
@@ -107,5 +113,13 @@ public class Node {
 
     public boolean isWalkable(){
         return walkable == 0;
+    }
+
+    public void addAdjacentNode(Node node){
+        adjacentNodes.add(node);
+    }
+
+    public List<Node> getAdjacentNodes(){
+        return adjacentNodes;
     }
 }
