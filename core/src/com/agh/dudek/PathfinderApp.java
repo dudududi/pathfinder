@@ -117,7 +117,7 @@ public class PathfinderApp extends ApplicationAdapter {
 		findPathButton.addListener(new ClickListener(){
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				List<Position> path = map.findPath(new Position(0, 0, 9), new Position(9, 9, 0));
+				List<Position> path = map.findPath(new Position(1, 16, 5), new Position(18, 34, 8));
 				renderer.drawPath(path);
 			}
 		});
@@ -128,12 +128,19 @@ public class PathfinderApp extends ApplicationAdapter {
 	}
 
 	private void setupMap(){
-		map = new Map(10, 10, 10);
-		//map.addBuilding(new Building(0, 0, 3, 3, 1));
-		map.addBuilding(new Building(3, 2, 2, 2, 4)); //!!!!!!
-		map.addBuilding(new Building(5, 7, 2, 2, 3));
-		//map.addBuilding(new Building(10, 15, 8, 4, 15));
-		//map.addBuilding(new Building(20, 20, 3, 3, 2));
+		map = new Map(20, 37, 40);
+		map.addBuilding(new Building(14, 8, 4, 5, 8));
+		map.addBuilding(new Building(4, 2, 3, 6, 2));
+		map.addBuilding(new Building(4, 12, 3, 5, 3));
+		map.addBuilding(new Building(8, 16, 2, 7, 4));
+		map.addBuilding(new Building(3, 19, 4, 12, 15));
+		map.addBuilding(new Building(3, 19, 4, 12, 2));
+		map.addBuilding(new Building(14, 20, 5, 4, 5));
+		map.addBuilding(new Building(14, 30, 6, 4, 7));
+
+
+
+
 		map.createGraph();
 	}
 

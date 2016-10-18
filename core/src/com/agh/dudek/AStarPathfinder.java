@@ -37,7 +37,7 @@ public class AStarPathfinder implements Pathfinder {
             //Getting list of adjacent nodes
             List<Node> adjacentNodes = current.getAdjacentNodes();
             for (Node child : adjacentNodes) {
-                if (child.isClosed() || !child.isWalkable()) { //TODO !!!!!
+                if (child.isClosed() || !child.isWalkable()) {
                     continue;
                 }
                 if (child.isOpened()) {
@@ -73,6 +73,7 @@ public class AStarPathfinder implements Pathfinder {
             path.add(current.getPosition());
             current = current.getParent();
         }
+        path.add(startPosition);
         return path;
     }
 }

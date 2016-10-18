@@ -64,12 +64,12 @@ public class MapRenderer {
     }
 
     public void drawPath(List<Position> path){
-        Model pathPart = modelBuilder.createBox(Map.NODE_SIZE, Map.NODE_SIZE, Map.NODE_SIZE,
+        Model pathPart = modelBuilder.createSphere(Map.NODE_SIZE, Map.NODE_SIZE, Map.NODE_SIZE, 10, 10,
                 new Material(ColorAttribute.createDiffuse(new Color(Color.RED))),
                 VertexAttributes.Usage.Position | VertexAttributes.Usage.ColorPacked);
         this.path = new ArrayList<>();
         for (Position pos: path){
-            this.path.add(new ModelInstance(pathPart, computePosition(pos.getX(), pos.getY(), pos.getZ())));
+            this.path.add(new ModelInstance(pathPart, computePosition(pos)));
         }
     }
 
@@ -95,6 +95,17 @@ public class MapRenderer {
         float xShift = Map.NODE_SIZE * map.getWidth() / 2;
         float zShift = Map.NODE_SIZE * map.getDepth() / 2;
         position.sub(xShift, 0, zShift);
+
+        return position;
+    }
+
+    private Vector3 computePosition(Position pos){
+        Vector3 position = new Vector3(pos.getX() * Map.NODE_SIZE, pos.getZ() * Map.NODE_SIZE, pos.getY() * Map.NODE_SIZE);
+
+        float xShift = Map.NODE_SIZE * map.getWidth() / 2 - Map.NODE_SIZE / 2;
+        float zShift = Map.NODE_SIZE * map.getDepth() / 2 - Map.NODE_SIZE / 2;
+        float hShift = -Map.NODE_SIZE / 2;
+        position.sub(xShift, hShift, zShift);
 
         return position;
     }
