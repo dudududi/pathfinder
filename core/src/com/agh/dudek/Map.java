@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.utils.StringBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,12 +35,6 @@ public class Map {
 
         buildings = new ArrayList<>();
         map = new int[width][depth][height];
-
-        ModelBuilder modelBuilder = new ModelBuilder();
-        model = modelBuilder.createLineGrid(width, depth,
-                NODE_SIZE, NODE_SIZE,
-                new Material(ColorAttribute.createDiffuse(Color.GREEN)),
-                VertexAttributes.Usage.Position | VertexAttributes.Usage.ColorPacked);
     }
 
     public void addBuilding(Building building) {
@@ -75,8 +70,27 @@ public class Map {
     }
 
 
-    public Model getModel(){
+    protected Model getModel(){
+        if (model == null) {
+            ModelBuilder modelBuilder = new ModelBuilder();
+            model = modelBuilder.createLineGrid(width, depth,
+                    NODE_SIZE, NODE_SIZE,
+                    new Material(ColorAttribute.createDiffuse(Color.GREEN)),
+                    VertexAttributes.Usage.Position | VertexAttributes.Usage.ColorPacked);
+        }
         return model;
+    }
+
+    @Override
+    public String toString(){
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < depth; i++){
+            for (int j = 0; j < width; j++) {
+                stringBuilder.append(map[j][i][0]);
+            }
+            stringBuilder.append("\n");
+        }
+        return stringBuilder.toString();
     }
 
     public int getWidth(){
@@ -85,6 +99,13 @@ public class Map {
 
     public int getDepth(){
         return depth;
+    }
+
+    public void addNodeManually(int x, int y, int height){
+        buildings.add(new Building(x, y, 1, 1, height));
+        for (int i = 0; i < height; i++){
+            map[x][y][i] = height;
+        }
     }
 
     private boolean canBeAdded(Building b) {

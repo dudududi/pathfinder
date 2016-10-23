@@ -29,12 +29,6 @@ public class Building {
         this.width = width;
         this.depth = depth;
         this.height = height;
-        Random random = new Random();
-
-        ModelBuilder builder = new ModelBuilder();
-        this.model = builder.createBox(width * Map.NODE_SIZE, height * Map.NODE_SIZE, depth * Map.NODE_SIZE,
-                new Material(ColorAttribute.createDiffuse(new Color(random.nextInt()))),
-                VertexAttributes.Usage.Position | VertexAttributes.Usage.ColorPacked);
     }
 
     public int getX() {
@@ -66,6 +60,14 @@ public class Building {
     }
 
     public Model getModel(){
+        if (model == null){
+            Random random = new Random();
+
+            ModelBuilder builder = new ModelBuilder();
+            this.model = builder.createBox(width * Map.NODE_SIZE, height * Map.NODE_SIZE, depth * Map.NODE_SIZE,
+                    new Material(ColorAttribute.createDiffuse(new Color(random.nextInt()))),
+                    VertexAttributes.Usage.Position | VertexAttributes.Usage.ColorPacked);
+        }
         return model;
     }
 }

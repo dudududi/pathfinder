@@ -52,10 +52,16 @@ public class PathfinderApp extends ApplicationAdapter {
 
 	}
 
+	public void setMap(Map map){
+		this.map = map;
+	}
+
 	private void setup(){
 		setup3D();
 		setupMenu();
-		setupMap();
+		if (map == null) {
+			setupMap();
+		}
 
         multiplexer = new InputMultiplexer();
 		multiplexer.addProcessor(stage);
@@ -129,6 +135,7 @@ public class PathfinderApp extends ApplicationAdapter {
 
 	private void setupMap(){
 		map = new Map(20, 37, 40);
+
 		map.addBuilding(new Building(14, 8, 4, 5, 8));
 		map.addBuilding(new Building(4, 2, 3, 6, 2));
 		map.addBuilding(new Building(4, 12, 3, 5, 3));
@@ -137,9 +144,6 @@ public class PathfinderApp extends ApplicationAdapter {
 		map.addBuilding(new Building(3, 19, 4, 12, 2));
 		map.addBuilding(new Building(14, 20, 5, 4, 5));
 		map.addBuilding(new Building(14, 30, 6, 4, 7));
-
-
-
 
 		map.createGraph();
 	}
