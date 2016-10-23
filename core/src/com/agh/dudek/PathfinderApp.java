@@ -49,7 +49,8 @@ public class PathfinderApp extends ApplicationAdapter {
 
 	@Override
 	public void dispose () {
-
+		renderer.dispose();
+		stage.dispose();
 	}
 
 	public void setMap(Map map){
@@ -72,10 +73,12 @@ public class PathfinderApp extends ApplicationAdapter {
 
 	private void setup3D(){
 		camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		camera.position.set(10f, 100f, 10f);
+		camera.position.set(0f, 400f, 0f);
+		camera.direction.set(0, 0, -1);
+		camera.up.set(0, 1, 0);
 		camera.lookAt(0, 0, 0);
 		camera.near = 1f;
-		camera.far = 300f;
+		camera.far = 3000f;
 		camera.update();
 
 		environment = new Environment();
@@ -92,6 +95,7 @@ public class PathfinderApp extends ApplicationAdapter {
 		TextButton.TextButtonStyle style = new TextButton.TextButtonStyle();
 		style.font = new BitmapFont();
 		style.fontColor = Color.RED;
+		style.font.getData().setScale(15, 15);
 
         final MarkInputController markInputController = new MarkInputController();
 
@@ -103,7 +107,7 @@ public class PathfinderApp extends ApplicationAdapter {
                 multiplexer.addProcessor(markInputController);
                 isInEditMode = !isInEditMode;
                 if (isInEditMode) {
-                    camera.position.set(0, Map.NODE_SIZE * 40, 0);
+                    camera.position.set(0f, 400f, 0f);
                     camera.direction.set(0, 0, -1);
                     camera.up.set(0, 1, 0);
                     camera.lookAt(0, 0, 0);
@@ -123,7 +127,7 @@ public class PathfinderApp extends ApplicationAdapter {
 		findPathButton.addListener(new ClickListener(){
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				List<Position> path = map.findPath(new Position(1, 16, 5), new Position(18, 34, 8));
+				List<Position> path = map.findPath(new Position(0, 0, 11), new Position(49, 129, 0));
 				renderer.drawPath(path);
 			}
 		});

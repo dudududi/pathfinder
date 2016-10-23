@@ -3,11 +3,9 @@ package com.agh.dudek;
 import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
-import android.os.Parcelable;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
-import com.agh.dudek.PathfinderApp;
 
 import java.util.ArrayList;
 
@@ -34,8 +32,10 @@ public class AndroidLauncher extends AndroidApplication {
 
 		Map map = new Map(width, depth, height);
 		for (Point point: buildingPoints){
-			map.addNodeManually(point.x, point.y, DEFAULT_BUILDINGS_HEIGHT);
+			map.addBuildingPoint(point.x, point.y, DEFAULT_BUILDINGS_HEIGHT);
 		}
+
+		map.createGraph();
 		return  map;
 	}
 }

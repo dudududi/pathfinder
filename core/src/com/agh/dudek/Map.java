@@ -20,6 +20,7 @@ public class Map {
     public static final int NODE_SIZE = 4;
 
     private List<Building> buildings;
+    private List<Building.Point> buildingsPoints;
     private int width;
     private int depth;
     private int height;
@@ -34,6 +35,7 @@ public class Map {
         this.height = height;
 
         buildings = new ArrayList<>();
+        buildingsPoints = new ArrayList<>();
         map = new int[width][depth][height];
     }
 
@@ -50,6 +52,18 @@ public class Map {
     }
 
     public void createGraph(){
+        if (buildingsPoints.size() > 0){
+            List<Building> detectedBuildings = Building.createBuildingsFromPoints(buildingsPoints);
+            for (Building b: detectedBuildings){
+                for (Building.Point p: b.getBuildingPoints()) {
+                    for (int i =0; i < p.height; i++) {
+                        map[p.x][p.y][i] = p.height;
+                    }
+                }
+            }
+            buildings.addAll(detectedBuildings);
+        }
+
         connectionList = new ConnectionList(width, depth, height);
         connectionList.initialize(map);
     }
@@ -101,11 +115,8 @@ public class Map {
         return depth;
     }
 
-    public void addNodeManually(int x, int y, int height){
-        buildings.add(new Building(x, y, 1, 1, height));
-        for (int i = 0; i < height; i++){
-            map[x][y][i] = height;
-        }
+    public void addBuildingPoint(int x, int y, int height){
+        buildingsPoints.add(new Building.Point(x, y, height));
     }
 
     private boolean canBeAdded(Building b) {

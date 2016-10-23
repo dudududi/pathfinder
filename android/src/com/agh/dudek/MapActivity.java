@@ -21,15 +21,13 @@ import com.google.android.gms.maps.model.MapStyleOptions;
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback {
 
     public static final int WIDTH_DIVISIONS = 50;
-    public static final int HEIGHT_DIVISIONS = 100;
+    public static final int HEIGHT_DIVISIONS = 130;
     public static final int MAP_HEIGHT = 20;
 
     public static final String BUILDINGS_POINTS = "buildingsPoints";
     public static final String WIDTH = "mapWidth";
     public static final String DEPTH = "mapDepth";
     public static final String HEIGHT = "mapHeight";
-
-    private MapConverterTask mapConverterTask;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -39,8 +37,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         MapFragment mapFragment = (MapFragment) getFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-        mapConverterTask = new MapConverterTask(this, WIDTH_DIVISIONS, HEIGHT_DIVISIONS);
     }
 
     @Override
@@ -71,7 +67,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
                 googleMap.snapshot(new GoogleMap.SnapshotReadyCallback() {
                     @Override
                     public void onSnapshotReady(Bitmap bitmap) {
-                        mapConverterTask.execute(bitmap);
+                        new MapConverterTask(MapActivity.this, WIDTH_DIVISIONS, HEIGHT_DIVISIONS).execute(bitmap);
                         googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(MapActivity.this, R.raw.map_with_roads_style));
                     }
                 });

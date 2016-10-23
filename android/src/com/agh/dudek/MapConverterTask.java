@@ -1,5 +1,6 @@
 package com.agh.dudek;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -9,7 +10,6 @@ import android.os.AsyncTask;
 
 
 import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -23,6 +23,7 @@ public class MapConverterTask extends AsyncTask<Bitmap, Void, ArrayList<Point>> 
     private int widthDivisions;
     private int heightDivisions;
     private Context context;
+    private ProgressDialog progressDialog;
 
     public MapConverterTask(Context context, int widthDivisions, int heightDivisions) {
         this.context = context;
@@ -30,6 +31,11 @@ public class MapConverterTask extends AsyncTask<Bitmap, Void, ArrayList<Point>> 
         this.heightDivisions = heightDivisions;
     }
 
+    @Override
+    protected void onPreExecute(){
+        progressDialog = ProgressDialog.show(context, "Please wait", "Converting map...", true);
+        progressDialog.setCancelable(false);
+    }
 
     @Override
     protected ArrayList<Point> doInBackground(Bitmap... bitmaps) {
@@ -71,6 +77,7 @@ public class MapConverterTask extends AsyncTask<Bitmap, Void, ArrayList<Point>> 
 
     @Override
     protected void onPostExecute(ArrayList<Point> result) {
+        progressDialog.cancel();
         Intent intent = new Intent(context, AndroidLauncher.class);
         intent.putParcelableArrayListExtra(MapActivity.BUILDINGS_POINTS, result);
         intent.putExtra(MapActivity.WIDTH, MapActivity.WIDTH_DIVISIONS);

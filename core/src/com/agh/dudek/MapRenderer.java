@@ -10,12 +10,15 @@ import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.g3d.ModelCache;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Disposable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,14 +29,16 @@ import java.util.List;
 public class MapRenderer {
 
     private Map map;
-    private List<ModelInstance> buildings;
-    private List<ModelInstance> path;
+    private List<RenderableProvider> buildings;
+    private RenderableProvider path;
+    private List<Disposable> disposables;
     private ModelInstance mesh;
     private ModelBatch modelBatch;
     private Camera camera;
     private Environment environment;
     private Model origin;
-    ModelBuilder modelBuilder;
+    private ModelBuilder modelBuilder;
+
 
 
     public MapRenderer(Map map, Camera camera, Environment environment){
@@ -42,11 +47,15 @@ public class MapRenderer {
         this.environment = environment;
 
         this.buildings = new ArrayList<>();
+        this.disposables = new ArrayList<>();
         modelBatch = new ModelBatch();
         modelBuilder = new ModelBuilder();
 
         origin = modelBuilder.createXYZCoordinates(10, new Material(ColorAttribute.createDiffuse(new Color(Color.RED))),
                 VertexAttributes.Usage.Position | VertexAttributes.Usage.ColorPacked);
+
+        disposables.add(modelBatch);
+        disposables.add(origin);
 
         generateMap();
     }
@@ -67,21 +76,46 @@ public class MapRenderer {
         Model pathPart = modelBuilder.createSphere(Map.NODE_SIZE, Map.NODE_SIZE, Map.NODE_SIZE, 10, 10,
                 new Material(ColorAttribute.createDiffuse(new Color(Color.RED))),
                 VertexAttributes.Usage.Position | VertexAttributes.Usage.ColorPacked);
-        this.path = new ArrayList<>();
+
+        ModelCache modelCache = new ModelCache();
+        modelCache.begin();
         for (Position pos: path){
-            this.path.add(new ModelInstance(pathPart, computePosition(pos)));
+            modelCache.add(new ModelInstance(pathPart, computePosition(pos)));
+        }
+        modelCache.end();
+        this.path = modelCache;
+
+        disposables.add(pathPart);
+        disposables.add(modelCache);
+    }
+
+    public void dispose(){
+        for (Disposable disposable: disposables){
+            disposable.dispose();
         }
     }
 
     private void generateMap(){
-
-
         mesh = new ModelInstance(map.getModel()); //place mesh in the center of view
-
+        disposables.add(map.getModel());
 
         for(Building b: map.getBuildings()){
-            ModelInstance instance = new ModelInstance(b.getModel(), computePosition(b));
-            buildings.add(instance);
+            if (b.shouldMergePoints()) {
+                List<ModelInstance> pointInstances = new ArrayList<>();
+                for (Building.Point point: b.getBuildingPoints()){
+                    pointInstances.add(new ModelInstance(b.getModel(), computePosition(point)));
+                }
+                ModelCache cache = new ModelCache();
+                cache.begin();
+                cache.add(pointInstances);
+                cache.end();
+                buildings.add(cache);
+                disposables.add(cache);
+            } else {
+                ModelInstance instance = new ModelInstance(b.getModel(), computePosition(b));
+                buildings.add(instance);
+            }
+            disposables.add(b.getModel());
         }
     }
 
@@ -115,6 +149,16 @@ public class MapRenderer {
 
         float xShift = Map.NODE_SIZE * map.getWidth() / 2 - b.getWidth() * 2;
         float zShift = Map.NODE_SIZE * map.getDepth() / 2 - b.getDepth() * 2;
+        position.sub(xShift, 0, zShift);
+
+        return position;
+    }
+
+    private Vector3 computePosition(Building.Point b) {
+        Vector3 position = new Vector3(b.x * Map.NODE_SIZE, b.height * Map.NODE_SIZE / 2, b.y * Map.NODE_SIZE);
+
+        float xShift = Map.NODE_SIZE * map.getWidth() / 2 -  Map.NODE_SIZE / 2;
+        float zShift = Map.NODE_SIZE * map.getDepth() / 2 -  Map.NODE_SIZE / 2;
         position.sub(xShift, 0, zShift);
 
         return position;
