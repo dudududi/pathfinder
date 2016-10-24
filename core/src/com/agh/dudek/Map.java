@@ -70,13 +70,7 @@ public class Map {
 
     public List<Position> findPath(Position startPosition, Position endPosition){
         Pathfinder pathfinder = new AStarPathfinder();
-        List<Position> path = pathfinder.findPath(startPosition, endPosition, connectionList);
-
-        for (Position p: path){
-            System.out.println("(" + p.getX() + ", " + p.getY() + ", " + p.getZ() + ")");
-        }
-
-        return path;
+        return pathfinder.findPath(startPosition, endPosition, connectionList);
     }
 
     public List<Building> getBuildings(){
@@ -114,6 +108,11 @@ public class Map {
     public int getDepth(){
         return depth;
     }
+
+    public int getHeight(){
+        return height;
+    }
+
 
     public void addBuildingPoint(int x, int y, int height){
         buildingsPoints.add(new Building.Point(x, y, height));

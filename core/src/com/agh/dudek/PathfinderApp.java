@@ -3,17 +3,19 @@ package com.agh.dudek;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 import java.util.List;
@@ -26,13 +28,13 @@ public class PathfinderApp extends ApplicationAdapter {
 	private PerspectiveCamera camera;
 	private Environment environment;
 	private Stage stage;
-    private InputMultiplexer multiplexer;
     private CameraInputController cameraInputController;
-    private boolean isInEditMode;
 	private Map map;
+	private Skin skin;
 
 	@Override
 	public void create () {
+		skin = new Skin(Gdx.files.internal("uiskin.json"));
 		setup();
 
         renderer = new MapRenderer(map, camera, environment);
@@ -58,13 +60,14 @@ public class PathfinderApp extends ApplicationAdapter {
 	}
 
 	private void setup(){
-		setup3D();
-		setupMenu();
 		if (map == null) {
 			setupMap();
 		}
+		setup3D();
+		setupMenu();
 
-        multiplexer = new InputMultiplexer();
+
+        InputMultiplexer multiplexer = new InputMultiplexer();
 		multiplexer.addProcessor(stage);
 		multiplexer.addProcessor(cameraInputController);
 
@@ -90,51 +93,43 @@ public class PathfinderApp extends ApplicationAdapter {
 
 	private void setupMenu(){
 		stage = new Stage();
-		stage.getCamera();
 
-		TextButton.TextButtonStyle style = new TextButton.TextButtonStyle();
-		style.font = new BitmapFont();
-		style.fontColor = Color.RED;
-		style.font.getData().setScale(15, 15);
-
-        final MarkInputController markInputController = new MarkInputController();
-
-		final TextButton addNewBuildingButton = new TextButton("Add new building", style);
-		addNewBuildingButton.addListener(new ClickListener(){
+		final TextButton resetViewButton = new TextButton("Reset view", skin);
+		resetViewButton.addListener(new ClickListener(){
 			@Override
-			public void clicked(InputEvent event, float x, float y){
-                multiplexer.removeProcessor(cameraInputController);
-                multiplexer.addProcessor(markInputController);
-                isInEditMode = !isInEditMode;
-                if (isInEditMode) {
-                    camera.position.set(0f, 400f, 0f);
-                    camera.direction.set(0, 0, -1);
-                    camera.up.set(0, 1, 0);
-                    camera.lookAt(0, 0, 0);
-                    camera.update();
-                    addNewBuildingButton.setText("Done");
-                } else {
-                    addNewBuildingButton.setText("Add new building");
-                    multiplexer.removeProcessor(markInputController);
-                    multiplexer.addProcessor(cameraInputController);
-                }
+			public void clicked(InputEvent event, float x, float y) {
+				camera.position.set(0f, 400f, 0f);
+				camera.direction.set(0, 0, -1);
+				camera.up.set(0, 1, 0);
+				camera.lookAt(0, 0, 0);
+				camera.update();
 			}
 		});
-		addNewBuildingButton.setX(0);
-		addNewBuildingButton.setY(0);
 
-		final TextButton findPathButton = new TextButton("Find path", style);
+		final TextButton findPathButton = new TextButton("Find path", skin);
 		findPathButton.addListener(new ClickListener(){
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				List<Position> path = map.findPath(new Position(0, 0, 11), new Position(49, 129, 0));
-				renderer.drawPath(path);
+				createStartDialog().show(stage);
 			}
 		});
-		findPathButton.setY(style.font.getLineHeight());
 
-		stage.addActor(addNewBuildingButton);
-		stage.addActor(findPathButton);
+		Table buttonsTable = new Table();
+		buttonsTable.add(findPathButton).width(Value.percentWidth(2f)).height(Value.percentHeight(2f));
+		buttonsTable.row();
+		buttonsTable.add(resetViewButton).padTop(5).width(Value.percentWidth(2f)).height(Value.percentHeight(2f));
+		buttonsTable.setPosition(100, 100);
+		stage.addActor(buttonsTable);
+
+		Table mapInfo = new Table();
+		mapInfo.add(new Label("Map width: " + map.getWidth(), skin));
+		mapInfo.row();
+		mapInfo.add(new Label("Map depth: " + map.getDepth(), skin));
+		mapInfo.row();
+		mapInfo.add(new Label("Map height: " + map.getHeight(), skin));
+		mapInfo.setPosition(60, Gdx.graphics.getHeight() - 60);
+		stage.addActor(mapInfo);
+
 	}
 
 	private void setupMap(){
@@ -151,6 +146,56 @@ public class PathfinderApp extends ApplicationAdapter {
 
 		map.createGraph();
 	}
+
+	private PositionDialog createStartDialog(){
+		PositionDialog startDialog = new PositionDialog("Type start position", skin);
+		startDialog.setCallback(new PositionDialog.Callback() {
+			@Override
+			public void onPositionReceived(Position position) {
+				if (isValidPosition(position)) {
+					PositionDialog endDialog = createEndDialog(position);
+					endDialog.show(stage);
+				} else {
+					this.onError("Position is outside the bounds of map");
+				}
+			}
+
+			@Override
+			public void onError(String errorMessage) {
+				new ErrorDialog(errorMessage, skin).show(stage);
+			}
+		});
+
+		return startDialog;
+	}
+
+	private PositionDialog createEndDialog(final Position startPosition) {
+		final PositionDialog endDialog = new PositionDialog("Type end position", skin);
+		endDialog.setCallback(new PositionDialog.Callback() {
+			@Override
+			public void onPositionReceived(Position endPosition) {
+				if (isValidPosition(endPosition)) {
+					List<Position> path = map.findPath(startPosition, endPosition);
+					renderer.drawPath(path);
+				} else {
+					this.onError("Position is outside the bounds of map");
+				}
+			}
+
+			@Override
+			public void onError(String errorMessage) {
+				new ErrorDialog(errorMessage, skin).show(stage);
+			}
+		});
+
+		return endDialog;
+	}
+
+	private boolean isValidPosition(Position position){
+		return position.getX() >= 0 && position.getY() >= 0 && position.getZ() >= 0 &&
+				position.getX() < map.getWidth() && position.getY() < map.getDepth() && position.getZ() < map.getHeight();
+	}
+
 
 
 }
