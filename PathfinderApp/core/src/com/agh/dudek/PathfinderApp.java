@@ -76,7 +76,7 @@ public class PathfinderApp extends ApplicationAdapter {
 
 	private void setup3D(){
 		camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		camera.position.set(0f, 400f, 0f);
+		camera.position.set(0f, 500f, 0f);
 		camera.direction.set(0, 0, -1);
 		camera.up.set(0, 1, 0);
 		camera.lookAt(0, 0, 0);

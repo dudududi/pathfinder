@@ -16,8 +16,9 @@ android {
     }
     defaultConfig {
         applicationId "com.agh.dudek"
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 24
+        multiDexEnabled true
     }
 }
 
