@@ -19,10 +19,10 @@ import com.google.android.gms.maps.model.MapStyleOptions;
  * Created by dudek on 10/18/16.
  */
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback {
-    //private static final int DIVISION_RATIO = 15;
+    private static final int DIVISION_RATIO = 15;
 
-    public static final int WIDTH_DIVISIONS = 1080 / 15;
-    public static final int HEIGHT_DIVISIONS = 1920 / 15;
+    public static final int WIDTH_DIVISIONS = 1080 / DIVISION_RATIO;
+    public static final int HEIGHT_DIVISIONS = 1920 / DIVISION_RATIO;
     public static final int MAP_HEIGHT = 20;
 
     public static final String BUILDINGS_POINTS = "buildingsPoints";
